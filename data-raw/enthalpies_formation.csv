@@ -1,0 +1,73 @@
+formule,nom,etat,dfH,source,stable
+H2,dihydrogène,g,0,convention,TRUE
+O2,dioxygène,g,0,convention,TRUE
+N2,diazote,g,0,convention,TRUE
+Cl2,dichlore,g,0,convention,TRUE
+F2,difluor,g,0,convention,TRUE
+Br2,dibrome,l,0,convention,TRUE
+I2,diiode,s,0,convention,TRUE
+C,carbone (graphite),s,0,convention,TRUE
+C,carbone (diamant),diamant,1.90,MANUEL,FALSE
+S,soufre (rhombique),s,0,convention,TRUE
+Na,sodium,s,0,convention,TRUE
+K,potassium,s,0,convention,TRUE
+Mg,magnésium,s,0,convention,TRUE
+Ca,calcium,s,0,convention,TRUE
+Al,aluminium,s,0,convention,TRUE
+Fe,fer,s,0,convention,TRUE
+Cu,cuivre,s,0,convention,TRUE
+Zn,zinc,s,0,convention,TRUE
+H2O,eau (liquide),l,-285.83,ET,TRUE
+H2O,eau (vapeur),g,-241.83,ET,FALSE
+H2O2,peroxyde d'hydrogène,l,-187.78,WIKI,TRUE
+O3,ozone,g,142.70,MANUEL,FALSE
+CO,monoxyde de carbone,g,-110.53,ET,TRUE
+CO2,dioxyde de carbone,g,-393.51,ET,TRUE
+CH4,méthane,g,-74.87,JANAF,TRUE
+C2H6,éthane,g,-84.00,ET,TRUE
+C3H8,propane,g,-103.80,ET,TRUE
+C4H10,butane,g,-126.30,NIST,TRUE
+C8H18,octane,l,-250.10,ET,TRUE
+C2H4,éthylène,g,52.47,NIST,TRUE
+C2H2,acétylène,g,226.73,WIKI,TRUE
+C6H6,benzène (liquide),l,49.10,ET,TRUE
+C6H6,benzène (vapeur),g,82.90,ET,FALSE
+CH3OH,méthanol,l,-239.20,ET,TRUE
+C2H5OH,éthanol (liquide),l,-277.60,ET,TRUE
+C2H5OH,éthanol (vapeur),g,-234.80,ET,FALSE
+CH3COOH,acide acétique,l,-484.30,ET,TRUE
+C6H12O6,glucose,s,-1273.30,MANUEL,TRUE
+C12H22O11,saccharose,s,-2226.10,MANUEL,TRUE
+NH3,ammoniac,g,-45.94,ET,TRUE
+NO,monoxyde d'azote,g,90.29,WIKI,TRUE
+NO2,dioxyde d'azote,g,33.10,WIKI,TRUE
+N2O,protoxyde d'azote,g,82.05,MANUEL,TRUE
+N2O4,tétroxyde de diazote,g,9.16,MANUEL,TRUE
+HNO3,acide nitrique,l,-174.10,MANUEL,TRUE
+NH4Cl,chlorure d'ammonium,s,-314.43,MANUEL,TRUE
+NH4NO3,nitrate d'ammonium,s,-365.56,MANUEL,TRUE
+SO2,dioxyde de soufre,g,-296.84,WIKI,TRUE
+SO3,trioxyde de soufre,g,-395.70,MANUEL,TRUE
+H2S,sulfure d'hydrogène,g,-20.63,WIKI,TRUE
+H2SO4,acide sulfurique,l,-814.00,WIKI,TRUE
+HCl,chlorure d'hydrogène,g,-92.30,WIKI,TRUE
+HBr,bromure d'hydrogène,g,-36.29,WIKI,TRUE
+HI,iodure d'hydrogène,g,26.50,MANUEL,TRUE
+NaCl,chlorure de sodium,s,-411.12,WIKI,TRUE
+KCl,chlorure de potassium,s,-436.68,WIKI,TRUE
+NaOH,hydroxyde de sodium,s,-425.93,WIKI,TRUE
+NaHCO3,hydrogénocarbonate de sodium,s,-950.81,MANUEL,TRUE
+Na2CO3,carbonate de sodium,s,-1130.77,WIKI,TRUE
+CaO,oxyde de calcium,s,-635.09,WIKI,TRUE
+Ca(OH)2,hydroxyde de calcium,s,-986.09,WIKI,TRUE
+CaCO3,carbonate de calcium (calcite),s,-1207.60,WIKI,TRUE
+MgO,oxyde de magnésium,s,-601.24,WIKI,TRUE
+Al2O3,oxyde d'aluminium,s,-1675.70,WIKI,TRUE
+SiO2,silice (quartz),s,-910.86,WIKI,TRUE
+Fe2O3,oxyde de fer(III),s,-824.20,MANUEL,TRUE
+Fe3O4,"oxyde de fer(II,III)",s,-1118.40,MANUEL,TRUE
+ZnO,oxyde de zinc,s,-350.46,MANUEL,TRUE
+CuO,oxyde de cuivre(II),s,-157.30,MANUEL,TRUE
+HCl,chlorure d'hydrogène (dissous),aq,-167.16,MANUEL,FALSE
+NaOH,hydroxyde de sodium (dissous),aq,-470.11,MANUEL,FALSE
+NaCl,chlorure de sodium (dissous),aq,-407.27,MANUEL,FALSE

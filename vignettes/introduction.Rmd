@@ -1,0 +1,214 @@
+---
+title: "L'enthalpie standard de formation avec le paquet enthalpie"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{L'enthalpie standard de formation avec le paquet enthalpie}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+lang: fr
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
+                      fig.width = 6.5, fig.height = 4)
+library(enthalpie)
+```
+
+## 1. De quoi parle-t-on ?
+
+L'**enthalpie standard de formation** d'une espèce, notée
+$\Delta_f H^\circ$, est la variation d'enthalpie de la réaction qui forme **une
+mole** de cette espèce à partir de ses **éléments pris dans leur état de
+référence**, sous la pression standard de 1 bar. On la donne le plus souvent à
+298,15 K, en kJ/mol.
+
+Deux conventions la rendent utilisable :
+
+- un élément dans son état de référence a $\Delta_f H^\circ = 0$
+  (graphite pour le carbone, $\mathrm{O_2}$ gazeux, $\mathrm{Br_2}$ liquide...) ;
+- l'état physique compte : l'eau liquide et la vapeur d'eau n'ont pas la même
+  valeur.
+
+Connaître les $\Delta_f H^\circ$ permet de calculer l'enthalpie de n'importe
+quelle réaction (loi de Hess) :
+
+$$\Delta_r H^\circ = \sum_{\text{produits}} \nu_i\,\Delta_f H^\circ_i
+  - \sum_{\text{réactifs}} \nu_j\,\Delta_f H^\circ_j .$$
+
+## 2. Le jeu de données
+
+Le paquet embarque 72 lignes : éléments de référence et composés usuels.
+
+```{r donnees}
+head(enthalpies_formation[, c("espece", "nom", "dfH", "source")], 10)
+```
+
+`dfH()` renvoie la valeur d'une ou plusieurs espèces. Sans état précisé, on
+obtient l'état le plus stable ; avec `(état)`, on choisit.
+
+```{r dfh}
+dfH(c("CO2", "H2O", "H2O(g)", "NH3"))
+dfH(c("C", "C(diamant)", "O2", "O3"))
+```
+
+Le graphite est la référence du carbone, donc le diamant a une valeur non
+nulle : il est un peu moins stable. Même chose pour l'ozone par rapport au
+dioxygène.
+
+```{r recherche}
+chercher_espece("acide")
+```
+
+## 3. Lire et équilibrer une équation
+
+Une équation s'écrit comme du texte, avec des coefficients éventuels (fractions
+comprises) et des états entre parenthèses.
+
+```{r lire}
+r <- lire_reaction("CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)")
+r
+compter_elements("Ca(OH)2")
+est_equilibree(r)
+```
+
+`equilibrer()` écrit la conservation des atomes comme un système linéaire
+$A\,x = 0$ et en cherche la solution entière minimale (décomposition en valeurs
+singulières).
+
+```{r equilibrer}
+equilibrer("C3H8 + O2 -> CO2 + H2O")
+equilibrer("Fe + O2 -> Fe2O3")
+equilibrer("Ca(OH)2 + H3PO4 -> Ca3(PO4)2 + H2O")
+```
+
+## 4. Enthalpie d'une réaction
+
+```{r hess-formule}
+res <- enthalpie_reaction("CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)", par = "CH4")
+res
+as.numeric(res)
+```
+
+Le diagramme de niveaux montre la même chose : les réactifs sont plus hauts que
+les produits, la réaction est exothermique.
+
+```{r niveaux}
+plot(res)
+```
+
+Quelques variantes :
+
+```{r variantes}
+# Synthèse de l'ammoniac (équation équilibrée automatiquement)
+enthalpie_reaction("N2 + H2 -> NH3", equilibrer_auto = TRUE, par = "NH3")
+
+# Changement d'état : vaporisation de l'eau
+enthalpie_reaction("H2O(l) -> H2O(g)")
+
+# Résultat en kcal
+enthalpie_reaction("H2(g) + 1/2 O2(g) -> H2O(l)", unite = "kcal")
+```
+
+## 5. Combustion et pouvoir calorifique
+
+`enthalpie_combustion()` construit l'équation de combustion complète d'un
+composé C-H-O et applique la formule précédente, par mole de combustible.
+
+```{r combustion}
+enthalpie_combustion("C2H5OH")
+```
+
+Le pouvoir calorifique est l'énergie libérée **par gramme** (eau formée
+liquide) : il départage les combustibles autrement que par mole.
+
+```{r pci}
+pc <- pouvoir_calorifique(c("H2", "CH4", "C3H8", "C2H5OH", "C6H12O6"))
+round(pc, 1)
+op <- par(mar = c(4, 6, 1, 1))
+barplot(sort(pc), horiz = TRUE, las = 1, col = "#2c7fb8", border = NA,
+        xlab = "Pouvoir calorifique supérieur (kJ/g)")
+par(op)
+```
+
+## 6. Loi de Hess : combiner des réactions
+
+L'enthalpie est une fonction d'état : la valeur de $\Delta_r H$ ne dépend pas
+du chemin. On peut donc additionner des équations et leurs enthalpies. Ici,
+la formation de CO (qu'on ne sait pas mesurer directement avec précision) à
+partir de deux combustions :
+
+```{r hess}
+loi_de_hess(
+  c("C(s) + O2(g) -> CO2(g)", "CO(g) + 1/2 O2(g) -> CO2(g)"),
+  enthalpies = c(-393.51, -282.98),
+  coefficients = c(1, -1)
+)
+```
+
+Un coefficient négatif inverse l'équation ; les espèces identiques (même
+formule **et** même état) qui apparaissent des deux côtés s'annulent.
+
+## 7. Une autre température : loi de Kirchhoff
+
+Les $\Delta_f H^\circ$ sont donnés à 298,15 K. À une autre température $T$ (sans
+changement d'état entre-temps) :
+
+$$\Delta_r H^\circ(T) = \Delta_r H^\circ(298{,}15) + \int_{298{,}15}^{T}\Delta C_p\,dT .$$
+
+Pour $\mathrm{N_2 + 3\,H_2 \to 2\,NH_3}$, avec les capacités thermiques molaires
+usuelles à 298 K ($\approx 29{,}1$, $28{,}8$ et $35{,}1$ J/(mol K)) on trouve
+$\Delta C_p \approx -45{,}5$ J/(mol K) ; en le supposant constant :
+
+```{r kirchhoff}
+temperatures <- c(298.15, 400, 500, 600)
+kirchhoff(-91.88, dCp = -45.5, T = temperatures)
+```
+
+## 8. Cycle de Born-Haber
+
+Pour un solide ionique comme NaCl, la formation à partir des éléments se
+décompose en étapes (sublimation, ionisation, atomisation, attachement
+électronique, formation du réseau). Connaissant $\Delta_f H^\circ$ et toutes les
+autres étapes, on obtient l'enthalpie de réseau, qui n'est pas mesurable
+directement.
+
+```{r born-haber}
+bh <- born_haber(dfH = -411.12, sublimation = 107.5, ionisation = 495.8,
+                 atomisation = 121.7, affinite = -349.0)
+bh
+plot(bh)
+```
+
+## 9. Comparer des espèces
+
+```{r barres}
+graphique_dfH(c("CO2(g)", "H2O(l)", "NH3(g)", "CH4(g)", "NO(g)", "C2H2(g)"))
+```
+
+Les composés très stables (CO$_2$, H$_2$O) ont un $\Delta_f H^\circ$ très
+négatif ; les composés riches en énergie, comme l'éthyne ou NO, sont à droite.
+
+## 10. Estimation par les énergies de liaison
+
+L'énergie des liaisons rompues moins celle des liaisons formées donne une
+**estimation** grossière de $\Delta_r H$ en phase gazeuse. Le paquet ne fournit
+pas de table d'énergies de liaison, car les valeurs dépendent de la source :
+on les passe en argument. Les nombres ci-dessous sont à remplacer par ceux de
+votre cours.
+
+```{r liaisons}
+energies <- c("H-H" = 436, "Cl-Cl" = 243, "H-Cl" = 432)
+enthalpie_liaisons(casse = c("H-H" = 1, "Cl-Cl" = 1),
+                   formees = c("H-Cl" = 2), energies = energies)
+```
+
+## 11. Limites à garder en tête
+
+- Les valeurs de $\Delta_f H^\circ$ diffèrent de quelques dixièmes de kJ/mol
+  d'une table à l'autre : comparez avec la table de votre cours (colonne
+  `source` du jeu de données).
+- La loi de Kirchhoff suppose qu'aucune espèce ne change d'état entre 298,15 K et $T$.
+- `enthalpie_combustion()` ne traite que les composés C-H-O.
+- Les enthalpies sont des enthalpies de **réaction** : elles décrivent la chaleur
+  échangée à pression constante, pas la vitesse de la réaction ni sa spontanéité
+  (pour cela, il faut l'enthalpie libre $\Delta_r G^\circ$).

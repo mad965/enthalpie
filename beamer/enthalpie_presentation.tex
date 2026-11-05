@@ -1,0 +1,880 @@
+% !TEX program = xelatex
+% Presentation Beamer : l'enthalpie standard de formation
+% Compilation : xelatex enthalpie_presentation.tex   (deux passages)
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% ---------- Langue et polices (XeLaTeX) ----------
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{french}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\IfFontExistsTF{DejaVu Sans Mono}
+  {\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]}
+  {\setmonofont{Latin Modern Mono}}
+\usefonttheme[onlymath]{serif}
+
+% ---------- Packages ----------
+\usepackage{amsmath,amssymb}
+\usepackage[version=4]{mhchem}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+\usepackage{fancyvrb}
+
+% ---------- Couleurs et theme ----------
+\definecolor{principal}{HTML}{1F4E79}
+\definecolor{exo}{HTML}{2C7FB8}
+\definecolor{endo}{HTML}{D95F0E}
+\definecolor{gris}{HTML}{6B6B6B}
+\usetheme{default}
+\setbeamercolor{structure}{fg=principal}
+\setbeamercolor{title}{fg=principal}
+\setbeamercolor{frametitle}{fg=principal}
+\setbeamercolor{alerted text}{fg=endo}
+\setbeamercolor{block title alerted}{fg=endo}
+\setbeamerfont{frametitle}{series=\bfseries,size=\large}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{footline}{%
+  \hfill{\scriptsize\color{gris}\insertframenumber/\inserttotalframenumber}\hspace{3mm}\vspace{2mm}}
+
+% ---------- Raccourcis ----------
+\newcommand{\dfH}{\Delta_{f}H^{\circ}}
+\newcommand{\drH}{\Delta_{r}H^{\circ}}
+\newcommand{\dcH}{\Delta_{c}H^{\circ}}
+\newcommand{\kJ}{\ensuremath{\,\mathrm{kJ}}}
+\newcommand{\kJmol}{\ensuremath{\,\mathrm{kJ\,mol^{-1}}}}
+\newcommand{\guil}[1]{«\,#1\,»}
+
+\title{L'enthalpie standard de formation}
+\subtitle{Théorie, applications et un package R : \texttt{enthalpie}}
+\author{ADM}
+\institute{Faculté des Sciences, Université de Bertoua\\
+Licence 3 de mathématiques~-- Introduction au langage R}
+\date{Novembre 2026}
+
+\begin{document}
+
+% =====================================================================
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Plan}
+  \tableofcontents
+\end{frame}
+
+% =====================================================================
+\section{Définir}
+
+\begin{frame}{Rappel : l'enthalpie}
+  \begin{itemize}
+    \item L'enthalpie est la fonction d'état $H = U + pV$.
+    \item À pression constante, et si le seul travail est celui des forces de
+      pression, la chaleur échangée est une variation d'enthalpie :
+      \[ Q_p = \Delta H. \]
+    \item Une réaction est
+      \begin{itemize}
+        \item \textbf{exothermique} si $\Delta H < 0$ (elle cède de la chaleur) ;
+        \item \textbf{endothermique} si $\Delta H > 0$ (elle en absorbe).
+      \end{itemize}
+    \item $H$ est une fonction d'état : $\Delta H$ ne dépend que de l'état
+      initial et de l'état final, pas du chemin suivi.
+  \end{itemize}
+  \vspace{2mm}
+  \begin{alertblock}{Idée clé de l'exposé}
+    On ne peut pas mesurer $H$ elle-même, seulement ses variations~: il faut
+    donc une \emph{origine} commune. Les enthalpies standard de formation
+    fournissent cette origine.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{L'état standard}
+  \begin{itemize}
+    \item \textbf{Pression standard} : $p^{\circ} = 1$~bar.
+    \item \textbf{Température} : le choix n'est pas imposé par la définition ;
+      les tables donnent presque toujours $T = 298{,}15$~K (25~°C).
+    \item \textbf{Corps pur} : sa forme physique la plus stable sous $p^{\circ}$
+      et à la température $T$ considérée (gaz, liquide ou solide ; pour un solide,
+      la variété cristalline la plus stable).
+    \item \textbf{Soluté} : solution aqueuse idéale à la concentration de
+      référence $c^{\circ} = 1$~mol\,L\textsuperscript{$-1$}.
+  \end{itemize}
+  \vspace{2mm}
+  \begin{block}{Notation}
+    Le symbole $^{\circ}$ signifie \guil{dans l'état standard}. On écrit
+    $\Delta_r H^{\circ}(T)$ : par défaut, $T = 298{,}15$~K.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Définition}
+  \begin{block}{Enthalpie standard de formation $\dfH$}
+    Variation d'enthalpie de la réaction qui forme \textbf{une mole} de
+    l'espèce, dans son état standard, à partir des \textbf{corps simples pris
+    dans leur état standard de référence}.
+  \end{block}
+  \vspace{2mm}
+  Exemples (298,15~K) :
+  \[
+    \ce{H2(g) + 1/2 O2(g) -> H2O(l)} \qquad
+    \dfH(\ce{H2O},\mathrm{l}) = -285{,}83\kJmol
+  \]
+  \[
+    \ce{C(s,graphite) + O2(g) -> CO2(g)} \qquad
+    \dfH(\ce{CO2},\mathrm{g}) = -393{,}51\kJmol
+  \]
+  \vspace{1mm}
+  \begin{itemize}
+    \item L'unité est le kJ par mole \emph{de l'espèce formée}.
+    \item Les coefficients fractionnaires sont permis : on veut exactement une
+      mole de produit.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Convention : les corps simples valent zéro}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Pour un \textbf{corps simple dans son état de référence}, la réaction de
+      formation est \guil{ne rien faire} :
+      \[ \dfH = 0. \]
+      \vspace{1mm}
+      \small
+      \begin{tabular}{@{}ll@{}}
+        \toprule
+        Élément & État de référence (298~K)\\
+        \midrule
+        H, N, O, F, Cl & gaz diatomique \ce{H2}, \ce{N2}, \ce{O2}, \ce{F2}, \ce{Cl2}\\
+        Br & \ce{Br2}(l)\\
+        I & \ce{I2}(s)\\
+        C & graphite\\
+        S & soufre rhombique\\
+        métaux usuels & solide (Na, K, Mg, Al, Fe, Cu, Zn...)\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \begin{tikzpicture}[x=1cm,y=1cm,>=Stealth]
+        \draw[->] (0,-0.2) -- (0,3.3) node[above] {\scriptsize $H$};
+        \draw[very thick,gris] (0.4,0.4) -- (2.2,0.4);
+        \node[right,font=\footnotesize] at (2.3,0.4) {graphite : 0};
+        \draw[very thick,endo] (0.4,1.2) -- (2.2,1.2);
+        \node[right,font=\footnotesize,align=left] at (2.3,1.2) {diamant :\\$+1{,}90\kJmol$};
+        \draw[<->] (0.9,0.4) -- (0.9,1.2);
+        \node[left,font=\scriptsize] at (0.85,0.8) {$+1{,}90$};
+        \node[font=\footnotesize,align=center] at (1.5,2.6) {Même élément,\\deux référentiels};
+      \end{tikzpicture}
+
+      \footnotesize
+      Même logique pour \ce{O2}(g) $= 0$ et l'ozone \ce{O3}(g) $= +142{,}7\kJmol$.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Écrire une réaction de formation}
+  \begin{enumerate}
+    \item Une seule espèce formée, au \textbf{coefficient 1}.
+    \item Les réactifs sont exclusivement des \textbf{corps simples} dans leur
+      état de référence.
+    \item On précise les \textbf{états physiques}.
+  \end{enumerate}
+  \vspace{2mm}
+  \small
+  \begin{tabular}{@{}lr@{}}
+    \toprule
+    Réaction de formation & $\dfH$ (\kJmol)\\
+    \midrule
+    \ce{C(s) + O2(g) -> CO2(g)} & $-393{,}51$\\
+    \ce{H2(g) + 1/2 O2(g) -> H2O(l)} & $-285{,}83$\\
+    \ce{C(s) + 2 H2(g) -> CH4(g)} & $-74{,}87$\\
+    \ce{1/2 N2(g) + 3/2 H2(g) -> NH3(g)} & $-45{,}94$\\
+    \ce{Na(s) + 1/2 Cl2(g) -> NaCl(s)} & $-411{,}12$\\
+    \ce{6 C(s) + 6 H2(g) + 3 O2(g) -> C6H12O6(s)} & $-1273{,}3$\\
+    \bottomrule
+  \end{tabular}
+  \vspace{2mm}
+
+  \footnotesize Plusieurs de ces réactions ne se font pas directement au
+  laboratoire (\ce{CH4} à partir de C et \ce{H2}) : on en déduit $\dfH$ par la
+  loi de Hess.
+\end{frame}
+
+\begin{frame}{Que dit le signe ?}
+  \begin{columns}[T]
+    \begin{column}{0.40\textwidth}
+      \begin{itemize}
+        \item $\dfH < 0$ : la formation dégage de la chaleur ; le composé a une
+          enthalpie \emph{plus basse} que ses éléments.
+        \item $\dfH > 0$ : il faut fournir de l'énergie (NO, \ce{C2H2}, \ce{O3}).
+      \end{itemize}
+      \vspace{2mm}
+      {\footnotesize Attention : le signe de $\dfH$ ne dit \emph{pas} à lui seul
+      si le composé est stable : il faut aussi l'entropie (voir $\Delta_f G^{\circ}$).}
+    \end{column}
+    \begin{column}{0.58\textwidth}
+      \begin{tikzpicture}
+        \begin{axis}[
+          xbar, width=\linewidth, height=6.4cm,
+          symbolic y coords={al,ca,na,co2,h2o,ch4,nh3,o3,no,c2h2},
+          ytick={al,ca,na,co2,h2o,ch4,nh3,o3,no,c2h2}, y dir=reverse,
+          yticklabels={\ce{Al2O3}(s),\ce{CaCO3}(s),\ce{NaCl}(s),\ce{CO2}(g),\ce{H2O}(l),\ce{CH4}(g),\ce{NH3}(g),\ce{O3}(g),\ce{NO}(g),\ce{C2H2}(g)},
+          xmin=-2250, xmax=700, xtick={-1500,-1000,-500,0},
+          bar width=6pt, enlarge y limits=0.06,
+          tick label style={font=\scriptsize,/pgf/number format/.cd,use comma,1000 sep={\,}},
+          xlabel={$\dfH$ (\kJmol)}, xlabel style={font=\scriptsize},
+          nodes near coords, point meta=explicit symbolic,
+          every node near coord/.append style={font=\scriptsize, anchor=west},
+          axis x line=bottom, axis y line=left,
+        ]
+          \addplot[fill=exo,draw=none,nodes near coords style={anchor=east}] coordinates
+            {(-1675.7,al) [{$-1675{,}7$}] (-1207.6,ca) [{$-1207{,}6$}]
+             (-411.12,na) [{$-411{,}1$}] (-393.51,co2) [{$-393{,}5$}]
+             (-285.83,h2o) [{$-285{,}8$}] (-74.87,ch4) [{$-74{,}9$}]
+             (-45.94,nh3) [{$-45{,}9$}]};
+          \addplot[fill=endo,draw=none] coordinates
+            {(142.7,o3) [{$+142{,}7$}] (90.29,no) [{$+90{,}3$}]
+             (226.73,c2h2) [{$+226{,}7$}]};
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+\section{Calculer : la loi de Hess}
+
+\begin{frame}{Passer par les éléments}
+  \centering
+  \begin{tikzpicture}[>=Stealth,node distance=2.6cm,
+      boite/.style={draw=principal,rounded corners,thick,minimum height=1cm,
+        minimum width=3.3cm,align=center}]
+    \node[boite] (R) {Réactifs};
+    \node[boite,right=5.4cm of R] (P) {Produits};
+    \node[boite,fill=principal!8,below=2.4cm of $(R)!0.5!(P)$] (E)
+      {Éléments\\ dans leur état de référence};
+    \draw[->,very thick,exo] (R) -- node[above]{$\drH$ (cherchée)} (P);
+    \draw[->,thick,endo] (R) -- node[left,align=right,font=\footnotesize]
+      {$-\sum \nu_j\,\dfH(\text{réactifs})$} (E);
+    \draw[->,thick,endo] (E) -- node[right,align=left,font=\footnotesize]
+      {$+\sum \nu_i\,\dfH(\text{produits})$} (P);
+  \end{tikzpicture}
+
+  \vspace{2mm}
+  \begin{block}{Principe}
+    Puisque $H$ est une fonction d'état, le chemin \guil{réactifs $\to$
+    éléments $\to$ produits} donne la même variation que la réaction directe.
+  \end{block}
+\end{frame}
+
+\begin{frame}{La formule}
+  \begin{block}{Enthalpie standard de réaction}
+    Pour $\sum_j \nu_j \,\mathrm{R}_j \;\to\; \sum_i \nu_i\,\mathrm{P}_i$ :
+    \[
+      \drH \;=\; \sum_{i\in\text{produits}} \nu_i\,\dfH(\mathrm{P}_i)
+      \;-\; \sum_{j\in\text{réactifs}} \nu_j\,\dfH(\mathrm{R}_j).
+    \]
+  \end{block}
+  \vspace{1mm}
+  \textbf{Démonstration.}
+  \begin{enumerate}
+    \item Décomposer les réactifs en éléments : chaque réactif coûte
+      $-\nu_j\,\dfH(\mathrm{R}_j)$ (réaction de formation inversée).
+    \item Recomposer les produits : $+\nu_i\,\dfH(\mathrm{P}_i)$.
+    \item L'enchaînement des deux étapes est la réaction étudiée. $\square$
+  \end{enumerate}
+  \vspace{1mm}
+  {\footnotesize Les coefficients $\nu$ sont ceux de l'équation \textbf{équilibrée}
+  écrite : doubler l'équation double $\drH$.}
+\end{frame}
+
+\begin{frame}{Exemple 1 : la combustion du méthane}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \[ \ce{CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)} \]
+      \small
+      \begin{tabular}{@{}lrr@{}}
+        \toprule
+        Espèce & $\nu$ & $\dfH$ (\kJmol)\\
+        \midrule
+        \ce{CH4}(g) & $-1$ & $-74{,}87$\\
+        \ce{O2}(g) & $-2$ & $0$\\
+        \ce{CO2}(g) & $+1$ & $-393{,}51$\\
+        \ce{H2O}(l) & $+2$ & $-285{,}83$\\
+        \bottomrule
+      \end{tabular}
+      \small
+      \begin{align*}
+        \drH &= \bigl[-393{,}51 + 2(-285{,}83)\bigr] - \bigl[-74{,}87 + 0\bigr]\\
+             &= -890{,}30\kJmol
+      \end{align*}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      \begin{tikzpicture}[>=Stealth,y=0.0036cm,x=1cm]
+        \draw[very thick,gris] (0,0) -- (1.8,0);
+        \node[above left,font=\scriptsize,inner sep=1pt] at (1.8,0) {éléments (0)};
+        \draw[very thick,exo] (0,-74.87) -- (1.8,-74.87);
+        \node[right,font=\scriptsize,align=left] at (1.85,-74.87) {\ce{CH4}+2\ce{O2}\\$-74{,}87$};
+        \draw[very thick,endo] (0,-965.17) -- (1.8,-965.17);
+        \node[right,font=\scriptsize,align=left] at (1.85,-965.17) {\ce{CO2}+2\ce{H2O}\\$-965{,}17$};
+        \draw[<->,thick] (0.9,-74.87) -- node[left,font=\footnotesize]{$\drH$} (0.9,-965.17);
+        \node[font=\scriptsize,below] at (0.9,-1050) {$-890{,}30\kJmol$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Exemple 2 : la thermite}
+  \[ \ce{Fe2O3(s) + 2 Al(s) -> Al2O3(s) + 2 Fe(s)} \]
+  \begin{align*}
+    \drH &= \dfH(\ce{Al2O3}) - \dfH(\ce{Fe2O3})\\
+         &= -1675{,}7 - (-824{,}2) = -851{,}5\kJmol
+  \end{align*}
+  \begin{itemize}
+    \item Très exothermique : l'aluminium \guil{vole} l'oxygène du fer parce
+      que \ce{Al2O3} est bien plus stable que \ce{Fe2O3} (écart d'enthalpies
+      de formation).
+    \item La chaleur dégagée suffit à faire fondre le fer produit : cette réaction sert à
+      souder des rails.
+    \item Les métaux n'apparaissent pas dans le calcul : leur $\dfH$ est nul.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Exemple 3 : la synthèse de l'ammoniac}
+  \[ \ce{N2(g) + 3 H2(g) -> 2 NH3(g)} \qquad
+     \drH = 2\,(-45{,}94) = -91{,}88\kJ \]
+  soit $-45{,}94\kJmol$ \emph{par mole de} \ce{NH3} (c'est $\dfH(\ce{NH3})$ :
+  l'équation est la formation, multipliée par deux).
+  \vspace{2mm}
+  \begin{itemize}
+    \item La réaction est exothermique : une basse température déplace
+      l'équilibre vers \ce{NH3}.
+    \item Mais la cinétique est très lente à froid : le procédé industriel
+      (Haber-Bosch) travaille autour de 400--500~°C, sous haute pression, avec un
+      catalyseur de fer.
+  \end{itemize}
+  \begin{alertblock}{Bien lire}
+    L'enthalpie d'une réaction dépend de l'équation écrite : toujours préciser
+    \guil{par mole de quoi}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Hess par combinaison d'équations}
+  On ne connaît pas toujours $\dfH$ : on combine des réactions mesurées.
+  Formation de CO, difficile à mesurer seule (on obtient aussi du \ce{CO2}) :
+  \begin{align*}
+    (1)\;& \ce{C(s) + O2(g) -> CO2(g)} & \Delta H_1 &= -393{,}51\kJ\\
+    (2)\;& \ce{CO(g) + 1/2 O2(g) -> CO2(g)} & \Delta H_2 &= -282{,}98\kJ
+  \end{align*}
+  \[
+    (1) - (2)\;:\quad \ce{C(s) + 1/2 O2(g) -> CO(g)}
+    \qquad \Delta H = -393{,}51 - (-282{,}98) = -110{,}53\kJ
+  \]
+  \vspace{-1mm}
+  \begin{itemize}
+    \item Multiplier une équation multiplie son enthalpie ; l'inverser change son signe.
+    \item Les espèces identiques (même formule et même état) des deux côtés
+      s'annulent.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Remonter à $\dfH$ par une combustion}
+  Méthode expérimentale classique : on brûle le composé dans un calorimètre,
+  puis on isole $\dfH$.
+  \[
+    \ce{CH4 + 2 O2 -> CO2 + 2 H2O(l)} \;:\;
+    \dcH = \dfH(\ce{CO2}) + 2\,\dfH(\ce{H2O}) - \dfH(\ce{CH4})
+  \]
+  \begin{align*}
+    \dfH(\ce{CH4}) &= \dfH(\ce{CO2}) + 2\,\dfH(\ce{H2O}) - \dcH\\
+      &= -393{,}51 - 571{,}66 + 890{,}30 = -74{,}87\kJmol
+  \end{align*}
+  \vspace{1mm}
+  \begin{itemize}
+    \item $\dcH(\ce{CH4}) = -890{,}30\kJmol$ se mesure avec précision ;
+      $\dfH(\ce{CH4})$ s'en déduit.
+    \item Les valeurs de $\dfH(\ce{CO2})$ et $\dfH(\ce{H2O})$ viennent de mesures
+      de formation directes.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Applications : l'énergie des combustibles}
+
+\begin{frame}{Enthalpie de combustion et pouvoir calorifique}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \small
+      \begin{tabular}{@{}lrrr@{}}
+        \toprule
+        Combustible & $\dcH$ (\kJmol) & $M$ (g/mol) & kJ/g\\
+        \midrule
+        \ce{H2} & $-285{,}83$ & 2,016 & 141,8\\
+        \ce{CH4} & $-890{,}30$ & 16,043 & 55,5\\
+        \ce{C3H8} (propane) & $-2220{,}05$ & 44,097 & 50,3\\
+        \ce{C4H10} (butane) & $-2876{,}89$ & 58,124 & 49,5\\
+        \ce{C8H18} (octane) & $-5470{,}45$ & 114,232 & 47,9\\
+        \ce{C2H5OH} (éthanol) & $-1366{,}91$ & 46,069 & 29,7\\
+        \ce{C6H12O6} (glucose) & $-2802{,}74$ & 180,156 & 15,6\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \footnotesize
+      Combustion complète, \ce{CO2}(g) et \ce{H2O}(l).\\[2mm]
+      Le \textbf{pouvoir calorifique supérieur} est l'énergie libérée par
+      \emph{gramme} : on divise $|\dcH|$ par la masse molaire.\\[2mm]
+      Par mole, l'octane domine ; par gramme, l'hydrogène domine.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Par gramme : qui libère le plus ?}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      xbar, width=0.82\linewidth, height=6.2cm,
+      symbolic y coords={h2,ch4,c3h8,c4h10,c8h18,c2h5oh,glu,vide},
+      ytick={h2,ch4,c3h8,c4h10,c8h18,c2h5oh,glu}, y dir=reverse,
+      yticklabels={\ce{H2},\ce{CH4},\ce{C3H8},\ce{C4H10},\ce{C8H18},\ce{C2H5OH},glucose},
+      xmin=0, xmax=165, ymin=h2, ymax=vide, bar width=8pt, enlarge y limits={abs=0.3},
+      tick label style={font=\footnotesize,/pgf/number format/.cd,use comma,1000 sep={\,}},
+      xlabel={Pouvoir calorifique supérieur (kJ/g)},
+      nodes near coords, point meta=explicit symbolic,
+      every node near coord/.append style={font=\scriptsize, anchor=west},
+      axis x line=bottom, axis y line=left,
+    ]
+      \addplot[fill=exo,draw=none] coordinates
+        {(141.78,h2) [{141,8}] (55.49,ch4) [{55,5}] (50.34,c3h8) [{50,3}]
+         (49.50,c4h10) [{49,5}] (47.89,c8h18) [{47,9}] (29.67,c2h5oh) [{29,7}]
+         (15.56,glu) [{15,6}]};
+    \end{axis}
+  \end{tikzpicture}
+
+  {\footnotesize Calculé avec le package : \texttt{pouvoir\_calorifique()}.}
+\end{frame}
+
+\begin{frame}{Ce que le corps \guil{brûle} : le glucose}
+  \[ \ce{C6H12O6(s) + 6 O2(g) -> 6 CO2(g) + 6 H2O(l)} \]
+  \[
+    \dcH = 6(-393{,}51) + 6(-285{,}83) - (-1273{,}3) = -2802{,}74\kJmol
+  \]
+  \begin{itemize}
+    \item Soit $2802{,}74 / 180{,}156 \approx 15{,}6$~kJ par gramme,
+      c'est-à-dire environ $3{,}7$~kcal/g (1~cal $=$ 4,184~J) : même ordre de
+      grandeur que les $\approx 4$~kcal/g que l'on attribue aux glucides.
+    \item Le corps ne \guil{brûle} pas le glucose en une étape, mais comme
+      $H$ est une fonction d'état, l'énergie totale est la même.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Mesurer : la bombe calorimétrique}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item La combustion se fait \textbf{à volume constant} dans une
+          \guil{bombe} : la chaleur échangée est $\Delta U$.
+        \item L'eau et la bombe s'échauffent de $\Delta T$ :
+          \[ \Delta U = -\frac{C_{\text{cal}}\,\Delta T}{n}. \]
+        \item On revient à l'enthalpie par
+          \[ \Delta H = \Delta U + \Delta n_g\,RT, \]
+          où $\Delta n_g$ est la variation du nombre de moles \emph{de gaz}
+          (gaz parfaits).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{block}{Méthane}
+        \footnotesize
+        \ce{CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)}\\
+        $\Delta n_g = 1 - 3 = -2$\\
+        $\Delta H - \Delta U = -2 \times 8{,}314 \times 298{,}15 / 1000$\\
+        $\approx -4{,}96\kJ$
+      \end{block}
+      \begin{block}{Glucose}
+        \footnotesize
+        $\Delta n_g = 6 - 6 = 0$\\
+        donc $\Delta H = \Delta U$.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{3mm}
+  {\footnotesize Ordre de grandeur (exemple pédagogique) : 1~g de glucose libère
+  15,6~kJ ; avec $C_{\text{cal}} = 10{,}0$~kJ\,K\textsuperscript{$-1$},
+  l'élévation est $\Delta T \approx 1{,}56$~K.}
+\end{frame}
+
+% =====================================================================
+\section{Compléments}
+
+\begin{frame}{Une autre température : loi de Kirchhoff}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      Les $\dfH$ sont donnés à 298,15~K. À une température $T$, sans changement
+      d'état :
+      \[
+        \drH(T) = \drH(T_0) + \int_{T_0}^{T}\Delta C_p\,\mathrm{d}T,
+      \]
+      $\Delta C_p = \sum\nu_i C_{p,i}(\text{produits}) - \sum\nu_j C_{p,j}(\text{réactifs})$.
+
+      \vspace{2mm}
+      {\footnotesize Exemple : \ce{N2 + 3 H2 -> 2 NH3}, $\Delta C_p \approx -45{,}5$
+      J\,K\textsuperscript{$-1$}\,mol\textsuperscript{$-1$} supposé constant
+      (valeurs usuelles de $C_p$ à 298~K : 29,1 ; 28,8 ; 35,1).\\
+      À 500~K : $-91{,}88 + (-45{,}5)(201{,}85)/1000 \approx -101{,}06\kJ$.}
+    \end{column}
+    \begin{column}{0.50\textwidth}
+      \begin{tikzpicture}
+        \begin{axis}[
+          width=\linewidth, height=5.6cm,
+          xlabel={$T$ (K)}, ylabel={$\drH(T)$ (\kJ)},
+          xmin=298.15, xmax=800, ymin=-120, ymax=-85,
+          tick label style={font=\scriptsize,/pgf/number format/.cd,use comma,1000 sep={\,}}, label style={font=\footnotesize},
+          grid=major, grid style={gray!25},
+        ]
+          \addplot[very thick,exo,domain=298.15:800] {-91.88 - 0.0455*(x-298.15)};
+          \addplot[only marks,mark=*,mark size=1.8pt,endo]
+            coordinates {(298.15,-91.88) (500,-101.06) (700,-110.16)};
+        \end{axis}
+      \end{tikzpicture}
+
+      {\scriptsize Illustration ; avec un $\Delta C_p$ constant, c'est une
+      approximation.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Solides ioniques : le cycle de Born-Haber}
+  \begin{columns}[T]
+    \begin{column}{0.66\textwidth}
+      \begin{tikzpicture}[>=Stealth,x=1.5cm,y=0.0050cm,font=\scriptsize]
+        % niveaux cumules : 0 ; 107.5 ; 603.3 ; 725.0 ; 376.0 ; -411.12
+        \foreach \x/\h/\t/\pos in {0/0/{Na(s)\\+$\tfrac12$Cl$_2$(g)}/above,
+                              1/107.5/{Na(g)\\+$\tfrac12$Cl$_2$(g)}/above,
+                              2/603.3/{Na$^+$(g)+e$^-$\\+$\tfrac12$Cl$_2$(g)}/above,
+                              3/725.0/{Na$^+$(g)+e$^-$\\+Cl(g)}/above,
+                              4/376.0/{Na$^+$(g)\\+Cl$^-$(g)}/below,
+                              5/-411.12/{NaCl(s)}/below} {
+          \draw[very thick,principal] (\x-0.3,\h) -- (\x+0.3,\h);
+          \node[\pos=2pt,align=center,font=\fontsize{7}{8}\selectfont,text width=1.1cm] at (\x,\h) {\t};
+        }
+        \foreach \x/\ha/\hb/\lab/\col in {0/0/107.5/{$+107{,}5$}/endo,
+                                          1/107.5/603.3/{$+495{,}8$}/endo,
+                                          2/603.3/725.0/{$+121{,}7$}/endo,
+                                          3/725.0/376.0/{$-349{,}0$}/exo,
+                                          4/376.0/-411.12/{$-787{,}1$}/exo} {
+          \draw[dotted] (\x+0.3,\ha) -- (\x+0.5,\ha);
+          \draw[dotted] (\x+0.5,\hb) -- (\x+0.7,\hb);
+          \draw[->,thick,\col] (\x+0.5,\ha) -- (\x+0.5,\hb);
+          \node[right,inner sep=1pt] at (\x+0.5,{(\ha+\hb)/2}) {\lab};
+        }
+        \draw[->,thick,dashed] (-0.3,0) -- (-0.6,0) -- (-0.6,-411.12) -- (4.65,-411.12);
+        \node[rotate=90,above] at (-0.6,-205) {$\dfH=-411{,}12$};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \footnotesize
+      Étapes (\kJmol) : sublimation de Na, ionisation de Na, atomisation de
+      $\tfrac12$\ce{Cl2}, affinité électronique de Cl, puis formation du réseau.
+      \begin{align*}
+        \dfH ={}& \Delta_{sub}H + E_i + \Delta_{at}H\\
+                & + E_{ea} + \Delta_{res}H
+      \end{align*}
+      Les quatre premières étapes valent
+      $107{,}5 + 495{,}8 + 121{,}7 - 349{,}0 = 376{,}0$ ; on en déduit
+      l'enthalpie de réseau, qui ne se mesure pas directement :
+      \begin{align*}
+        \Delta_{res}H &= -411{,}12 - 376{,}0\\
+                      &= -787{,}12\kJmol
+      \end{align*}
+    \end{column}
+  \end{columns}
+  {\scriptsize Valeurs usuelles de manuel pour Na et Cl.}
+\end{frame}
+
+\begin{frame}{Énergies de liaison : une estimation}
+  En phase gazeuse, on peut estimer
+  \[
+    \drH \approx \sum E(\text{liaisons rompues}) - \sum E(\text{liaisons formées}).
+  \]
+  \vspace{-1mm}
+  \[ \ce{H2 + Cl2 -> 2 HCl} \]
+  \begin{itemize}
+    \item Rompues : $E_{\text{H--H}} + E_{\text{Cl--Cl}} = 436 + 243 = 679\kJmol$
+    \item Formées : $2\,E_{\text{H--Cl}} = 2 \times 432 = 864\kJmol$
+    \item Estimation : $679 - 864 = -185\kJ$
+  \end{itemize}
+  \vspace{1mm}
+  Par la loi de Hess : $2\,\dfH(\ce{HCl},\mathrm{g}) = 2\,(-92{,}30) = -184{,}6\kJ$. L'accord est
+  bon ici, mais ce n'est pas général : les énergies de liaison sont des
+  \emph{moyennes}, et la méthode suppose des espèces gazeuses.
+  \vspace{1mm}
+
+  {\footnotesize Valeurs usuelles de manuel, à remplacer par celles de votre table.}
+\end{frame}
+
+\begin{frame}{Du côté de la spontanéité : $\Delta_f G^{\circ}$}
+  \begin{itemize}
+    \item L'enthalpie dit combien de chaleur est échangée, pas si la réaction
+      \emph{se produit}.
+    \item Le critère est l'enthalpie libre :
+      \[ \Delta_f G^{\circ} = \dfH - T\,\Delta_f S^{\circ}. \]
+    \item Une réaction endothermique peut être spontanée si l'entropie augmente
+      suffisamment.
+    \item L'éthyne \ce{C2H2} ($\dfH = +226{,}73\kJmol$) est thermodynamiquement
+      instable par rapport à ses éléments, mais sa décomposition ne démarre pas
+      d'elle-même à température ordinaire (elle peut toutefois être explosive
+      sous pression) : thermodynamique $\neq$ cinétique.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+\section{Le package R \texttt{enthalpie}}
+
+\begin{frame}{Ce que fait le package}
+  \small
+  \begin{tabular}{@{}p{0.43\textwidth}p{0.52\textwidth}@{}}
+    \toprule
+    Fonction & Rôle\\
+    \midrule
+    \texttt{enthalpies\_formation} & 72 espèces, avec la source de chaque valeur\\
+    \texttt{dfH()}, \texttt{chercher\_espece()} & lire une valeur, chercher une espèce\\
+    \texttt{lire\_reaction()}, \texttt{equilibrer()} & lire et équilibrer une équation écrite en texte\\
+    \texttt{enthalpie\_reaction()} & $\drH = \sum \nu\,\dfH$, avec tableau et diagramme\\
+    \texttt{enthalpie\_combustion()}, \texttt{pouvoir\_calorifique()} & kJ/mol et kJ/g\\
+    \texttt{loi\_de\_hess()} & combiner des réactions\\
+    \texttt{kirchhoff()} & $\drH(T)$ à partir de $\Delta C_p$\\
+    \texttt{born\_haber()} & cycle de Born-Haber\\
+    \texttt{enthalpie\_liaisons()} & estimation par énergies de liaison\\
+    \texttt{graphique\_dfH()} & diagramme en barres\\
+    \bottomrule
+  \end{tabular}
+  \vspace{2mm}
+
+  {\footnotesize Écrit en R de base (aucune dépendance autre que \texttt{graphics} et \texttt{stats}).}
+\end{frame}
+
+\begin{frame}[fragile]{Démonstration 1 : formules, valeurs, équilibrage}
+\begin{Verbatim}[fontsize=\small]
+library(enthalpie)
+
+compter_elements("Ca(OH)2")
+#> Ca  O  H
+#>  1  2  2
+
+masse_molaire("C6H12O6")
+#> [1] 180.156
+
+dfH(c("CO2", "H2O", "H2O(g)"))
+#> [1] -393.51 -285.83 -241.83
+
+equilibrer("C3H8 + O2 -> CO2 + H2O")
+#> C3H8 + 5 O2 -> 3 CO2 + 4 H2O
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Démonstration 2 : enthalpie d'une réaction}
+\begin{Verbatim}[fontsize=\footnotesize]
+enthalpie_reaction("CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)", par = "CH4")
+#> Réaction : CH4(g) + 2 O2(g) -> CO2(g) + 2 H2O(l)
+#>
+#>   Espèce             nu   dfH (kJ/mol)    nu*dfH (kJ)
+#>   CH4(g)             -1         -74.87          74.87
+#>   O2(g)              -2           0.00           0.00
+#>   CO2(g)             +1        -393.51        -393.51
+#>   H2O(l)             +2        -285.83        -571.66
+#>
+#> ΔrH° = -890.30 kJ  (exothermique)
+#> ΔrH° par mole de CH4 : -890.30 kJ/mol
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Démonstration 3 : combustion et loi de Hess}
+\begin{Verbatim}[fontsize=\footnotesize]
+enthalpie_combustion("C2H5OH")$dH
+#> [1] -1366.91
+
+round(pouvoir_calorifique(c("H2", "CH4", "C2H5OH")), 1)
+#>     H2    CH4 C2H5OH
+#>  141.8   55.5   29.7
+
+loi_de_hess(
+  c("C(s) + O2(g) -> CO2(g)", "CO(g) + 1/2 O2(g) -> CO2(g)"),
+  enthalpies = c(-393.51, -282.98), coefficients = c(1, -1))
+#> Loi de Hess
+#>   (1) coefficient 1  ΔH = -393.51 kJ   C(s) + O2(g) -> CO2(g)
+#>   (2) coefficient -1  ΔH = -282.98 kJ   CO(g) + 1/2 O2(g) -> CO2(g)
+#>
+#> Équation globale : C(s) + 1/2 O2(g) -> CO(g)
+#> ΔH global = -110.53 kJ
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}[fragile]{Démonstration 4 : Kirchhoff et Born-Haber}
+\begin{Verbatim}[fontsize=\footnotesize]
+kirchhoff(-91.88, dCp = -45.5, T = c(298.15, 500, 700))
+#> [1]  -91.8800 -101.0642 -110.1642
+
+born_haber(dfH = -411.12, sublimation = 107.5, ionisation = 495.8,
+           atomisation = 121.7, affinite = -349.0)
+#> Cycle de Born-Haber
+#>   Sublimation du métal                   +107.50 kJ/mol
+#>   Ionisation du métal                    +495.80 kJ/mol
+#>   Atomisation du non-métal               +121.70 kJ/mol
+#>   Affinité électronique                  -349.00 kJ/mol
+#>   Formation du réseau cristallin         -787.12 kJ/mol
+#>                                        ---------
+#>   ΔfH° du solide ionique                 -411.12 kJ/mol
+\end{Verbatim}
+\end{frame}
+
+\begin{frame}{Qualité et publication}
+  \begin{itemize}
+    \item \textbf{Tests unitaires} (\texttt{testthat}) : 52 blocs de test pour
+      l'analyse des formules, l'équilibrage, les enthalpies de réaction et de
+      combustion, Hess, Kirchhoff, Born-Haber, et la cohérence du jeu de données.
+    \item \textbf{Documentation} : commentaires \texttt{roxygen2} $\to$ pages
+      d'aide, plus une \textbf{vignette} qui déroule le cours.
+    \item \textbf{Vérification} : \texttt{devtools::check()} en local ;
+      \textbf{GitHub Actions} la rejoue sous Linux, Windows et macOS à chaque envoi.
+    \item \textbf{Publication} : dépôt GitHub public, installation par
+      \texttt{remotes::install\_github()}.
+    \item \textbf{Licence} MIT ; chaque valeur numérique porte sa source.
+  \end{itemize}
+  \vspace{2mm}
+  \begin{block}{Choix de conception}
+    Pas de dépendances, des tests dont les valeurs attendues se vérifient à la
+    main (par exemple $-890{,}30$ pour le méthane), et des messages d'erreur
+    explicites en français.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Limites et pistes}
+  \begin{itemize}
+    \item \textbf{Données} : sources multiples, parfois différentes de quelques
+      dixièmes de kJ/mol. Certaines valeurs sont des valeurs classiques de manuel
+      qui n'ont pas été revérifiées une à une : la table du cours fait foi.
+    \item \textbf{Couverture} : 72 espèces, peu d'espèces en solution aqueuse ; la
+      combustion ne traite que les composés C-H-O.
+    \item \textbf{Kirchhoff} : sans changement d'état, avec un $\Delta C_p$
+      fourni par l'utilisateur.
+    \item \textbf{Énergies de liaison} : volontairement non embarquées (les
+      tables varient).
+    \item \textbf{Pistes} : enthalpie libre $\Delta_f G^{\circ}$ et entropie,
+      équilibres chimiques, import d'une table CSV du cours, application Shiny.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Conclusion}
+  \begin{itemize}
+    \item $\dfH$ : la variation d'enthalpie qui forme une mole d'un composé à
+      partir des corps simples de référence ; elle vaut $0$ pour ces derniers.
+    \item La loi de Hess, $\drH = \sum \nu\,\dfH(\text{produits}) - \sum \nu\,\dfH(\text{réactifs})$,
+      permet de prévoir la chaleur de toute réaction à partir d'un seul
+      tableau de valeurs.
+    \item Applications : combustibles, aliments, solides ioniques, autres
+      températures.
+    \item Le package \texttt{enthalpie} automatise ces calculs et les rend
+      vérifiables.
+  \end{itemize}
+  \vspace{4mm}
+  \centering\Large Merci de votre attention.
+\end{frame}
+
+% =====================================================================
+\section*{Références et annexe}
+
+\begin{frame}{Références}
+  \footnotesize
+  \begin{itemize}
+    \item NIST Chemistry WebBook : \url{https://webbook.nist.gov}
+    \item Tables NIST-JANAF : \url{https://janaf.nist.gov}
+    \item Wikipédia, \emph{Standard enthalpy change of formation (data table)}.
+    \item EngineeringToolbox, tables d'enthalpies de formation :
+      \url{https://www.engineeringtoolbox.com}
+    \item G.~H. Hess (1840) : énoncé de la loi de la constance de la somme des
+      chaleurs.
+    \item P. Atkins, J. de Paula, \emph{Physical Chemistry} : thermochimie,
+      loi de Hess, cycle de Born-Haber.
+    \item IUPAC, \emph{Quantities, Units and Symbols in Physical Chemistry}
+      (\guil{Green Book}) : notation et état standard ($p^{\circ} = 1$~bar).
+    \item H. Wickham, J. Bryan, \emph{R Packages} (2\textsuperscript{e} éd.) :
+      \url{https://r-pkgs.org}
+    \item Code du package : dépôt GitHub \texttt{VOTRE-UTILISATEUR/enthalpie}
+      (à compléter).
+  \end{itemize}
+  \vspace{2mm}
+  Les valeurs de chaque espèce sont étiquetées par source dans le jeu de
+  données (colonne \texttt{source}).
+\end{frame}
+
+\begin{frame}{Annexe : quelques valeurs de $\dfH$ (298,15~K, \kJmol)}
+  \scriptsize
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{tabular}{@{}lr@{}}
+        \toprule
+        Espèce & $\dfH$\\
+        \midrule
+        \ce{H2O}(l) & $-285{,}83$\\
+        \ce{H2O}(g) & $-241{,}83$\\
+        \ce{H2O2}(l) & $-187{,}78$\\
+        \ce{CO}(g) & $-110{,}53$\\
+        \ce{CO2}(g) & $-393{,}51$\\
+        \ce{CH4}(g) & $-74{,}87$\\
+        \ce{C2H6}(g) & $-84{,}00$\\
+        \ce{C3H8}(g) & $-103{,}80$\\
+        \ce{C4H10}(g) & $-126{,}30$\\
+        \ce{C8H18}(l) & $-250{,}10$\\
+        \ce{C2H4}(g) & $+52{,}47$\\
+        \ce{C2H2}(g) & $+226{,}73$\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{tabular}{@{}lr@{}}
+        \toprule
+        Espèce & $\dfH$\\
+        \midrule
+        \ce{C6H6}(l) & $+49{,}10$\\
+        \ce{CH3OH}(l) & $-239{,}20$\\
+        \ce{C2H5OH}(l) & $-277{,}60$\\
+        \ce{CH3COOH}(l) & $-484{,}30$\\
+        \ce{NH3}(g) & $-45{,}94$\\
+        \ce{NO}(g) & $+90{,}29$\\
+        \ce{NO2}(g) & $+33{,}10$\\
+        \ce{N2O}(g) & $+82{,}05$\\
+        \ce{SO2}(g) & $-296{,}84$\\
+        \ce{H2S}(g) & $-20{,}63$\\
+        \ce{HCl}(g) & $-92{,}30$\\
+        \ce{HBr}(g) & $-36{,}29$\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{tabular}{@{}lr@{}}
+        \toprule
+        Espèce & $\dfH$\\
+        \midrule
+        \ce{NaCl}(s) & $-411{,}12$\\
+        \ce{KCl}(s) & $-436{,}68$\\
+        \ce{NaOH}(s) & $-425{,}93$\\
+        \ce{CaO}(s) & $-635{,}09$\\
+        \ce{CaCO3}(s) & $-1207{,}60$\\
+        \ce{MgO}(s) & $-601{,}24$\\
+        \ce{Al2O3}(s) & $-1675{,}70$\\
+        \ce{SiO2}(s) & $-910{,}86$\\
+        \ce{Fe2O3}(s) & $-824{,}20$\\
+        \ce{ZnO}(s) & $-350{,}46$\\
+        \ce{CuO}(s) & $-157{,}30$\\
+        \ce{C}(diamant) & $+1{,}90$\\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}

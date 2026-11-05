@@ -1,0 +1,26 @@
+Package: enthalpie
+Type: Package
+Title: Enthalpie Standard de Formation : Données et Calculs de Thermochimie
+Version: 0.1.0
+Authors@R:
+    person("Milol antoine", role = c("aut", "cre"), email = "milolantoine123@gmail.com")
+Description: Outils pédagogiques autour de l'enthalpie standard de formation
+    (298,15 K, 1 bar). Le paquet fournit un jeu de données d'enthalpies de
+    formation, un lecteur et un équilibreur d'équations chimiques, le calcul de
+    l'enthalpie de réaction et de combustion par la loi de Hess, le pouvoir
+    calorifique, la loi de Kirchhoff, le cycle de Born-Haber, une estimation par
+    les énergies de liaison et des graphiques en R de base. Projet réalisé dans
+    le cadre d'un cours d'introduction à R.
+License: MIT + file LICENSE
+URL: https://github.com/mad965/enthalpie
+BugReports: https://github.com/mad965/enthalpie/issues
+Depends: R (>= 4.0.0)
+Imports: graphics, stats
+Suggests: knitr, rmarkdown, testthat (>= 3.1.5)
+VignetteBuilder: knitr
+Encoding: UTF-8
+Language: fr
+LazyData: true
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.1
