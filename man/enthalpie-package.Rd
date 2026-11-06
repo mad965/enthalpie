@@ -35,11 +35,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Milol Antoine \email{milolantoine123@gmail.com}
+\strong{Maintainer}: Antoine Milol \email{milolantoine123@gmail.com}
 
 Authors:
 \itemize{
-  \item Milol Antoine \email{milolantoine123@gmail.com}
+  \item Antoine Milol \email{milolantoine123@gmail.com}
 }
 
 }
