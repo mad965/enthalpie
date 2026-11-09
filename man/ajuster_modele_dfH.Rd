@@ -2,18 +2,27 @@
 % Please edit documentation in R/modele_dfH.R
 \name{ajuster_modele_dfH}
 \alias{ajuster_modele_dfH}
-\title{Ajuster un modèle linéaire sur les enthalpies de formation}
+\title{Ajuster un modèle linéaire pour prédire l'enthalpie de formation}
 \usage{
-ajuster_modele_dfH(data = NULL, formule = dfH ~ n_carbones)
+ajuster_modele_dfH(data = NULL)
 }
 \arguments{
-\item{data}{Le jeu de données du package (ex: alcanes).}
+\item{data}{Un data.frame contenant au moins les colonnes \code{formule} et une
+colonne d'enthalpie (par exemple \code{dfH}).}
 
-\item{formule}{La formule du modèle (ex: dfH ~ n_carbones).}
+\item{formule}{Une formule de modèle R (par défaut \code{dfH ~ n_C + n_H + n_O}).}
 }
 \value{
-Un objet de classe "lm".
+Un objet \code{lm} ajusté.
 }
 \description{
-Ajuster un modèle linéaire sur les enthalpies de formation
+Ajuste une régression linéaire multiple de l'enthalpie standard de formation
+sur des descripteurs moléculaires (par exemple le nombre d'atomes de carbone,
+d'hydrogène et d'oxygène).
+}
+\examples{
+\dontrun{
+modele <- ajuster_modele_dfH(enthalpies_formation)
+summary(modele)
+}
 }

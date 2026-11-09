@@ -149,3 +149,31 @@ masse_molaire <- function(formule) {
   }
   vapply(formule, un, numeric(1), USE.NAMES = FALSE)
 }
+# R/utils_formule.R
+
+#' Extraire le nombre d'atomes d'oxygène d'une formule chimique
+#'
+#' @param formule Vecteur de formules chimiques (ex : "H2O(l)", "CO2(g)")
+#' @return Vecteur numérique du nombre d'atomes O
+#' @export
+extraire_n_O <- function(formule) {
+  sapply(formule, function(f) {
+    f_clean <- sub("\\([slg]\\)$", "", f)
+    matches <- regmatches(f_clean, gregexpr("O([0-9]*)", f_clean))[[1]]
+    if (length(matches) == 0) return(0)
+    sum(sapply(matches, function(m) {
+      num <- sub("O", "", m)
+      if (num == "") 1 else as.numeric(num)
+    }))
+  }, USE.NAMES = FALSE)   # <--- AJOUT ICI
+}
+
+extraire_etat <- function(formule) {
+  sapply(formule, function(f) {
+    if (grepl("\\(s\\)$", f)) return("solide")
+    if (grepl("\\(l\\)$", f)) return("liquide")
+    if (grepl("\\(g\\)$", f)) return("gaz")
+    return(NA)
+  }, USE.NAMES = FALSE)   # <--- AJOUT ICI
+}
+

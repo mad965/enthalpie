@@ -2,18 +2,27 @@
 % Please edit documentation in R/modele_dfH.R
 \name{tracer_modele_dfH}
 \alias{tracer_modele_dfH}
-\title{Tracer la réalité vs le modèle}
+\title{Tracer les prédictions d'un modèle d'enthalpie de formation}
 \usage{
 tracer_modele_dfH(modele, data = NULL)
 }
 \arguments{
-\item{modele}{Un objet "lm" issu de ajuster_modele_dfH.}
+\item{modele}{Un objet \code{lm} issu de \code{\link[=ajuster_modele_dfH]{ajuster_modele_dfH()}}.}
 
-\item{data}{Le jeu de données source.}
+\item{data}{Le data.frame utilisé pour l'ajustement (doit contenir la
+colonne d'enthalpie observée).}
 }
 \value{
-Un objet ggplot.
+Un objet \code{ggplot} (ou un graphique de base R, selon votre
+implémentation).
 }
 \description{
-Tracer la réalité vs le modèle
+Produit un graphique comparant les enthalpies observées et les enthalpies
+prédites par un modèle ajusté avec \code{\link[=ajuster_modele_dfH]{ajuster_modele_dfH()}}.
+}
+\examples{
+\dontrun{
+modele <- ajuster_modele_dfH(enthalpies_formation)
+tracer_modele_dfH(modele, enthalpies_formation)
+}
 }
