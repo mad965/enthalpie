@@ -1,6 +1,6 @@
 # Création du jeu de données enthalpies_formation
 enthalpies_formation_1 <- data.frame(
-  nom_chimique = c(
+  nom = c(
     "Acétone", "Acide acétique", "Acide formique", "Acide nitrique", 
     "Acide sulfurique", "Ammoniac", "Benzène", "Bromure d'argent", 
     "Bromure d'hydrogène", "Bromure de sodium", "Butane", "Carbonate de baryum", 

@@ -12,7 +12,7 @@ test_that("extraire_etat fonctionne", {
 })
 
 test_that("le modèle s'entraîne et prédit", {
-  modele <- modele_nO_etat(enthalpies_formation)
+  modele <- modele_nO_etat(enthalpies_formation_1)
   expect_s3_class(modele, "lm")
   pred <- predire_et_evaluer(modele, enthalpies_formation_1)
   expect_true("Hf_predit" %in% names(pred))
