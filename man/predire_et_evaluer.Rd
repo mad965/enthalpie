@@ -12,7 +12,7 @@ predire_et_evaluer(modele, nouveau)
 \item{nouveau}{data.frame contenant \code{formule} et \code{dfH}}
 }
 \value{
-Le data.frame avec les colonnes \code{Hf_predit} et \code{erreur} ajoutées
+Le data.frame avec les colonnes \code{dfH_predit} et \code{erreur} ajoutées
 }
 \description{
 Prédire et évaluer le modèle sur un nouveau jeu
