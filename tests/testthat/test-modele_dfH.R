@@ -5,7 +5,7 @@ test_that("ajuster_modele_dfH ajuste un modèle linéaire valide", {
 
 test_that("les prédictions du modèle sont cohérentes avec la réalité", {
   modele <- ajuster_modele_dfH(enthalpies_formation)
-  pred <- predict(modele, newdata = enthalpies_formation)
+  pred <- predict(modele, newdata = preparer_donnees_modele(enthalpies_formation))
   expect_equal(length(pred), nrow(enthalpies_formation))
   expect_false(any(is.na(pred)))
 })

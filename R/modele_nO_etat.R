@@ -19,7 +19,7 @@ modele_nO_etat <- function(data) {
 #'
 #' @param modele Objet `lm` issu de `modele_nO_etat()`
 #' @param nouveau data.frame contenant `formule` et `dfH`
-#' @return Le data.frame avec les colonnes `Hf_predit` et `erreur` ajoutées
+#' @return Le data.frame avec les colonnes `dfH_predit` et `erreur` ajoutées
 #' @export
 predire_et_evaluer <- function(modele, nouveau) {
   nouveau$n_O  <- extraire_n_O(nouveau$formule)
