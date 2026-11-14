@@ -21,9 +21,11 @@
 #' compter_atomes("CH4", "N")     # 0
 compter_atomes <- function(formule, element) {
   motif <- paste0(element, "([0-9]*)")
-  m <- regmatches(formule, gregexpr(motif, formule))[[1]]
-  if (length(m) == 0) return(0L)
-  nombres <- sub(paste0(element, "([0-9]*)"), "\\1", m)
-  nombres[nombres == ""] <- "1"
-  sum(as.integer(nombres))
+  sapply(formule, function(f) {
+    m <- regmatches(f, gregexpr(motif, f))[[1]]
+    if (length(m) == 0) return(0L)
+    nombres <- sub(motif, "\\1", m)
+    nombres[nombres == ""] <- "1"
+    sum(as.integer(nombres))
+  }, USE.NAMES = FALSE)
 }
